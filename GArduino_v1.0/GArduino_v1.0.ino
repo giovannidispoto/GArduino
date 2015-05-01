@@ -1,7 +1,7 @@
 /*
   @Name: GArduino Software
   @Version: v0.9(beta)
-  @Authors:Nica Claudiu, Giuseppe Perrupato, Giovanni Dispoto
+  @Author:Giovanni Dispoto
   @Description: Questo software ha il compito di leggere tutti i valori dai sensori collegati alle porte.
                 Una volta che vengono raccolti tutti i valori, il software deve costruire un Datagramma (protocollo UDP)
                 e inviarlo tramite la Ethernet Shield, sulla porta 7777.
