@@ -1,6 +1,6 @@
 /*
   @Name: GArduino Software
-  @Version: v1.0(beta)
+  @Version: v1.0
   @Author:  Giovanni Dispoto
   @Description: Questo software ha il compito di leggere tutti i valori dai sensori collegati alle porte.
                 Una volta che vengono raccolti tutti i valori, il software deve costruire un Datagramma (protocollo UDP)
