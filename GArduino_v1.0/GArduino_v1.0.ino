@@ -1,7 +1,7 @@
 /*
   @Name: GArduino Software
-  @Version: v0.9(beta)
-  @Author:Giovanni Dispoto
+  @Version: v1.0(beta)
+  @Author:  Giovanni Dispoto
   @Description: Questo software ha il compito di leggere tutti i valori dai sensori collegati alle porte.
                 Una volta che vengono raccolti tutti i valori, il software deve costruire un Datagramma (protocollo UDP)
                 e inviarlo tramite la Ethernet Shield, sulla porta 7777.
@@ -53,14 +53,14 @@ unsigned long timeI; //viene utilizzato per determinare quanto tempo è passato 
 int waterValue;//utilizzata per la lettura del sensore del livello dell'acqua
 
 void setup() {
-  Ethernet.begin(mac,ip,dnss,gateway,mask); //inizio Ethernet
-  udp.begin(localPort);//inizio udp
-  Serial.begin(9600);//apertura del monitor seriale
-  pinMode(LAMP,OUTPUT);//imposto LAMP come output 
-  pinMode(IRR,OUTPUT); //imposto IRR come output
-  dht.begin();//inizio sensore DHT
-  time = millis();//fotografia al tempo attuale
-  light = false;//imposto la luce a false
+    Ethernet.begin(mac,ip,dnss,gateway,mask); //inizio Ethernet
+    udp.begin(localPort);//inizio udp
+    Serial.begin(9600);//apertura del monitor seriale
+    pinMode(LAMP,OUTPUT);//imposto LAMP come output 
+    pinMode(IRR,OUTPUT); //imposto IRR come output
+    dht.begin();//inizio sensore DHT
+    time = millis();//fotografia al tempo attuale
+    light = false;//imposto la luce a false
 }
 
 void loop() {
@@ -75,41 +75,53 @@ void loop() {
   if((millis() - timeI) >= 2000){//se il tempo passato dall'inizio dell'irrigazione è maggiore di 2 secondi
         digitalWrite(IRR,LOW);//spengo l'irrigazione
       }
+      
   int packetSize = udp.parsePacket();//controllo la presenza di pacchetti in entrata
+  
+  
   if(packetSize){//se ci sono pacchetti in entrata
  
   udp.read(packetBuffer,UDP_TX_PACKET_MAX_SIZE);//acquisisco il pacchetto
  for(int i = 0; i < UDP_TX_PACKET_MAX_SIZE;i++){//ciclo for per scandire il contenuto
+ 
     if(packetBuffer[i] == 'O' || packetBuffer[i] == 'o'){//se è presente il carattere 'o'
-      digitalWrite(LAMP,HIGH);//accendo la lampada UV;
-      light = true;//imposto il flag di lampada accesa
-      break;
+        digitalWrite(LAMP,HIGH);//accendo la lampada UV;
+        light = true;//imposto il flag di lampada accesa
+        break; 
     }
+    
     if(packetBuffer[i] == 'F' || packetBuffer[i] == 'f'){//se è presente il carattere 'f'
-      digitalWrite(LAMP,LOW);//spengo la lampada UV
-      light = false;//imposto il flag della lampada UV
-      break;
+        digitalWrite(LAMP,LOW);//spengo la lampada UV
+        light = false;//imposto il flag della lampada UV
+        break;
     }
+    
     if(packetBuffer[i] == 'I' || packetBuffer[i] == 'i'){//se è presente il carattere 'i'
-    //if(wl != 'l'){
-      digitalWrite(IRR,HIGH);//accendo l'irrigazione
-      Serial.println("Irrigo");
-      timeI = millis();//fotografo l'istante di tempo
-   //   }
+    
+      if(wl != 'l'){
+          digitalWrite(IRR,HIGH);//accendo l'irrigazione
+          Serial.println("Irrigo");
+          timeI = millis();//fotografo l'istante di tempo
+      }
+    
     }
+    
     if(packetBuffer[i] == 'u' || packetBuffer[i] == 'U'){//se è presente il carattere 'u', richiesta di connessione
-      Serial.print("Client connesso");//stampo sul monitor il messaggio
-      ipS = udp.remoteIP();//ottengo l'IP della macchina connessa
-      Serial.print(udp.remoteIP());//stampo sul monitor l'IP della macchina
-      tSend = true;//imposto il flag di prova connessione
-      tp = millis();//fotografo l'istante di tempo
+        Serial.print("Client connesso");//stampo sul monitor il messaggio
+        ipS = udp.remoteIP();//ottengo l'IP della macchina connessa
+        Serial.print(udp.remoteIP());//stampo sul monitor l'IP della macchina
+        tSend = true;//imposto il flag di prova connessione
+        tp = millis();//fotografo l'istante di tempo
     }
+    
     if(packetBuffer[i] == 'a' || packetBuffer[i] == 'A'){//se è presente il carattere 'a'
       aut = true;//gestione automatica della lampada UV
     }
+    
     if(packetBuffer[i] == 'b' || packetBuffer[i] == 'B'){
       aut = false;
     }
+    
     if(packetBuffer[i] == 'd' || packetBuffer[i] == 'D'){////se è presente il carattere 'd', richiesta di disconnessione
       
     if(conn){ //se c'è connessione
@@ -122,16 +134,17 @@ void loop() {
    }
  }
    if(tSend){//se il flag di prova connessione è attivo
-   if(millis() - tp <= 2000){//se il tempo passato è minore di 2 secondi
-     Serial.println("Invio Connessione");//stampo a video il messaggio
-     udp.beginPacket(ipS,sendPort);//creo il pacchetto
-      udp.write("u");//scrivo 'u' che sta per indicare la risposta alla richiesta di connessione
-      udp.endPacket();//chiudo il pacchetto
-   }else{
-       conn = true;//imposto il flag di connessione 
-        tSend = false;//imposto il flag di prova connessione a false
-   }
+         if(millis() - tp <= 2000){//se il tempo passato è minore di 2 secondi
+                 Serial.println("Invio Connessione");//stampo a video il messaggio
+                 udp.beginPacket(ipS,sendPort);//creo il pacchetto
+                  udp.write("u");//scrivo 'u' che sta per indicare la risposta alla richiesta di connessione
+                  udp.endPacket();//chiudo il pacchetto
+             }else{
+                   conn = true;//imposto il flag di connessione 
+                    tSend = false;//imposto il flag di prova connessione a false
+                   }
  }
+ 
 if(ps == 4 && conn ==true){  //se sono terminate le acquisizioni dei sensori e la connessione è attiva
   //concateno ad una stringa tutti i valori, utilizzando come terminatore la costante v, che è una virgola
    packet.concat((int)t);
@@ -142,16 +155,22 @@ if(ps == 4 && conn ==true){  //se sono terminate le acquisizioni dei sensori e l
    packet.concat(v);
    packet.concat(wl);
    packet.concat(v);
-   if(light){ packet.concat("t");}//se la luce è accesa concateno 't'
-   else{ packet.concat("f");}//se la luce  spenta concateno 'f'
-  packet.toCharArray(p,13);//trasformo la stringa in un array di caratteri
-  Serial.println(p);//stampo a video l'array di caratteri
-  udp.beginPacket(ipS,sendPort);//creo il pacchetto
-  udp.write(p);//scrivo la stringa con i valori nel pacchetto
-  udp.endPacket();//chiudo il pacchetto
-  packet = "";//pulisco la strings
-  ps = 0;//rinizio la lettura dei sensori
-  }
+   if(light){
+       packet.concat("t");
+     }//se la luce è accesa concateno 't'
+   else{ 
+       packet.concat("f");
+ }//se la luce  spenta concateno 'f'
+ 
+      packet.toCharArray(p,13);//trasformo la stringa in un array di caratteri
+      Serial.println(p);//stampo a video l'array di caratteri
+      udp.beginPacket(ipS,sendPort);//creo il pacchetto
+      udp.write(p);//scrivo la stringa con i valori nel pacchetto
+      udp.endPacket();//chiudo il pacchetto
+      packet = "";//pulisco la strings
+      ps = 0;//rinizio la lettura dei sensori
+      }
+      
   delay(500);
   
 }
@@ -163,10 +182,13 @@ void humidityTLevel(){//lettura del sensore di umitià dell'aria
     Serial.print("Humidity: ");
     Serial.print(h);
     Serial.println("%");
-    if(h >= 60) digitalWrite(VENT,HIGH);//se l'umidità è maggiore o uguale al 70%, accendo la ventola
+    
+    if(h >= 60) 
+            digitalWrite(VENT,HIGH);//se l'umidità è maggiore o uguale al 70%, accendo la ventola
+            
     else digitalWrite(VENT,LOW);//altrimenti, la spengo
    if(ps == 1)
-      ps = 2;//passo allo stato successivo
+          ps = 2;//passo allo stato successivo
   
 }
 
@@ -175,9 +197,9 @@ void temperatureLevel(){//lettura del sensore di temperatura
     Serial.print("Temperature: ");
     Serial.print(t);
     Serial.println("*C");
- if(ps == 0){//passo allo stato successivo
-    ps = 1;
-    }
+ if(ps == 0)//passo allo stato successivo
+        ps = 1;
+    
 
 }
 
@@ -186,27 +208,34 @@ void waterLevel(){//lettura sensore livello acqua nel serbatorio
    Serial.print("Water level value: ");
    Serial.println(waterValue);
    //definire range livello acqua
- if(waterValue <= 340) wl = 'l';
- if(waterValue >= 341 && waterValue <= 682)wl = 'm';
- if(waterValue >= 683)wl = 'h';
- if(ps == 3){//passo allo stato successivo
-   ps = 4;
-   }
+   
+     if(waterValue <= 340) 
+               wl = 'l';
+               
+     if(waterValue >= 341 && waterValue <= 682)
+             wl = 'm';
+             
+     if(waterValue >= 683)
+             wl = 'h';
+             
+ if(ps == 3)//passo allo stato successivo
+       ps = 4;
+   
 }
 
 void terrainHumidity(){//lettura sensore umidità del terreno
-  th = map(analogRead(THSensor),0,1023,100,0);//leggo il sensore e lo mappo da 0 a 100 per la percentuale
-   Serial.print("Terrain Humidity:");
-    Serial.println(th);
- /*if(th < 40){
-   if(wl != 'l'){
+    th = map(analogRead(THSensor),0,1023,100,0);//leggo il sensore e lo mappo da 0 a 100 per la percentuale
+     Serial.print("Terrain Humidity:");
+      Serial.println(th);
+      
+ if(th < 40 && wl != 'l'){
       digitalWrite(IRR,HIGH);//accendo l'irrigazione
       timeI = millis();//fotografo l'istante di tempo
-      }
- }*/
- if(ps == 2){//passo allo stato successivo
-    ps = 3;
-    }
+ }
+ 
+ if(ps == 2)//passo allo stato successivo
+        ps = 3;
+    
     
 }
 
@@ -214,7 +243,14 @@ void lightTest(){//gestione automatica della lampada UV
    pLight = analogRead(FR);//leggo la fotoresistenza
    Serial.print("Livello Luce: ");
    Serial.println(pLight);
-   if(pLight > 500 && aut){digitalWrite(LAMP,HIGH);light = true;}//se il valore è maggiore di 500( con gestione automatica attiva), accendo la lampada
-   if(pLight < 500 && aut) {digitalWrite(LAMP,LOW);light = false;}//se il valore è minore di 500 ( con gestione automatica attiva) , spengo la lampada
+   if(pLight >= 500 && aut){
+           digitalWrite(LAMP,HIGH);
+         light = true;
+       }//se il valore è maggiore di 500( con gestione automatica attiva), accendo la lampada
+       
+    if(pLight < 500 && aut) {
+           digitalWrite(LAMP,LOW);
+         light = false;
+     }//se il valore è minore di 500 ( con gestione automatica attiva) , spengo la lampada
    
 }
