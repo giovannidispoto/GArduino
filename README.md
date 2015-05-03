@@ -8,4 +8,5 @@ The green house will be a model that can:
 -     irrigate in case of low terrain humidity
 -     Check the level of water in the tank
 -     Light on the light bulb in case of low light
+-     Power on a fan in case of high umidity in the air
 -     Comunicate by Ethernet to a PC software that will be used for checking the values and send any command
