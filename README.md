@@ -1,5 +1,5 @@
-﻿# GArduino
-
+# GArduino
+![GArduino](GArduino_Controller_SRC/garduino/Garduino.png)
 GArduino is a Smart Green House that allows you to check some values as temperature, air humidity, terrain humidity ecc..
 The green house will be a model that can:
 -     Check the  Air Humidity
